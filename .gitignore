@@ -1,0 +1,10 @@
+tags
+.*
+!.gitignore
+*.out
+old/
+used/
+sandbox/
+
+twitter_credentials.json
+
