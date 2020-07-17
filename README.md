@@ -14,6 +14,14 @@ every 60 seconds.
 |:-:|
 | Fig: An example result. The Sun or the Moon does move as time passes. |
 
+## Traffic
+
+Each created image has the size shown below. Thus it is estimated that the application will upload tens of megabytes of data to Twitter per day.
+
+| png without the Sun (grayscale) | jpg with the Sun (RGB) |
+|:-:|:-:|
+| 10KB | 30KB |
+
 ## Requirements
 
 - [`python-twitter` library](https://github.com/bear/python-twitter)

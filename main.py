@@ -176,7 +176,10 @@ while (True):
 
     twitter_client.change_header_image_(output_image_file)
 
-    time.sleep(interval_sec)
+    if (interval_sec == 60): #If `interval_sec` is exactly 60 seconds, waits with a higher accuracy. For example, if you start the program at 12:43:18, the next update will be 12:44:00 instead of 12:44:18.
+        time.sleep(interval_sec - time.localtime().tm_sec + 1)
+    else:
+        time.sleep(interval_sec)
 
 #-------------------------------------#
 
