@@ -1,5 +1,6 @@
 {
-    "output_image_file": "~/ramdisk/twitter_header_clock.png",
-    "font_name":         "NotoSansMono-Regular.ttf"
+    "output_image_file":       "~/ramdisk/twitter_header_clock.jpg",
+    "font_name":               "NotoSansMono-Regular.ttf",
+    "should_draw_sun_or_moon": true
 }
 

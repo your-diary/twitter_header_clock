@@ -12,7 +12,7 @@ every 60 seconds.
 
 | ![ss.png](./readme_assets/ss.png) |
 |:-:|
-| Fig: An example result. |
+| Fig: An example result. The Sun or the Moon does move as time passes. |
 
 ## Requirements
 
