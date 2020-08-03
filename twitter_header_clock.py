@@ -61,7 +61,7 @@ locale.setlocale(locale.LC_TIME, lang + '.UTF-8')
 
 def signal_handler(signal, frame) -> None:
     print()
-    print(f'(main.py) Signal {signal} was caught.')
+    print(f'(twitter_header_clock.py) Signal {signal} was caught.')
     sys.exit(1)
 
 signal.signal(signal.SIGTERM, signal_handler)

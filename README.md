@@ -58,7 +58,7 @@ Each created image has the size shown below. Thus it is estimated that the appli
 ## Usage
 
 ```bash
-$ python3 main.py
+$ python3 ./twitter_header_clock.py
 ```
 
 <!-- vim: set spell: -->
