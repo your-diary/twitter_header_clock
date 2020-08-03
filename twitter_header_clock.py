@@ -6,6 +6,7 @@
 
 import sys
 import os
+import locale
 import time
 import subprocess
 import json
@@ -20,7 +21,7 @@ import twitter
 
 ### Parameters ###
 
-is_debug_mode: bool = False
+is_debug_mode: bool = bool(1)
 
 with open('config.json', 'r') as f:
     prm: dict = json.load(f)
@@ -44,10 +45,15 @@ color_mode: str = 'RGB'
 bg_color: int = (0x3C, 0x3C, 0x3C)
 fg_color: int = (0xDD, 0xDD, 0xDD)
 
-should_draw_sun_or_moon: bool = prm['should_draw_sun_or_moon']
+should_draw_sun_and_moon: bool = prm['should_draw_sun_and_moon']
 sun_radius: int = 40
 sun_color: int = (0xEF, 0x8E, 0x38)
 moon_color: int = (0xFE, 0xFA, 0xD4)
+
+timezone_type: str = prm['timezone_type'] #'utc' or 'local'
+
+lang: str = prm['lang'] #'en_US', 'ja_JP', ...
+locale.setlocale(locale.LC_TIME, lang + '.UTF-8')
 
 #-------------------------------------#
 
@@ -101,9 +107,15 @@ class Twitter:
 
 ### Functions ###
 
+def get_current_time() -> time.struct_time:
+    if (timezone_type == 'local'):
+        return time.localtime()
+    else:
+        return time.gmtime()
+
 def create_date_string() -> str:
 
-    date_string: str = time.strftime('%Y/%m/%d(%a)%H:%M %Z(%z)')
+    date_string: str = time.strftime('%Y/%m/%d(%a)%H:%M %Z(%z)', get_current_time())
 
     cow_command: tuple = ('cowsay', 'cowthink')
     cow_type: tuple = ('www', 'udder', 'small', 'moose', 'default')
@@ -133,7 +145,7 @@ def draw_sun_or_moon(draw_object: ImageDraw.Draw) -> None:
     night_start_hour: int = 18
     night_end_hour: int = 6
 
-    current_time: object = time.localtime()
+    current_time: object = get_current_time()
 
     if (night_end_hour <= current_time.tm_hour < night_start_hour): #sun
         theta: float = max_radian - ((current_time.tm_hour - night_end_hour) * 60 + current_time.tm_min) * delta_radian
@@ -164,7 +176,7 @@ while (True):
     image: Image.Image = Image.new(color_mode, header_size, color = bg_color)
     draw_object: ImageDraw.Draw = ImageDraw.Draw(image)
 
-    if (should_draw_sun_or_moon):
+    if (should_draw_sun_and_moon):
         draw_sun_or_moon(draw_object)
 
     draw_object.text((header_size[0] / 4, 0), text = create_date_string(), fill = fg_color, font = font)
@@ -179,7 +191,7 @@ while (True):
     twitter_client.change_header_image_(output_image_file)
 
     if (interval_sec == 60): #If `interval_sec` is exactly 60 seconds, waits with a higher accuracy. For example, if you start the program at 12:43:18, the next update will be 12:44:00 instead of 12:44:18.
-        time.sleep(interval_sec - time.localtime().tm_sec + 1)
+        time.sleep(interval_sec - get_current_time().tm_sec + 1)
     else:
         time.sleep(interval_sec)
 

@@ -1,6 +1,8 @@
 {
     "output_image_file":       "~/ramdisk/twitter_header_clock.jpg",
     "font_name":               "NotoSansMono-Regular.ttf",
-    "should_draw_sun_or_moon": true
+    "should_draw_sun_and_moon": true,
+    "timezone_type":           "local",
+    "lang":                    "en_US"
 }
 
