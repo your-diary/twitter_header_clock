@@ -134,7 +134,7 @@ def create_date_string(is_cowsay_mode: bool) -> str:
 
     else:
 
-        return f'\n\n\n\n\nCurrent Time\n{date_string}'
+        return f'\n\n\n\nCurrent Time\n{date_string}'
 
 #experimental
 def draw_sun_or_moon(draw_object: ImageDraw.Draw) -> None:
