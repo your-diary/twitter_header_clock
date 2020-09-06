@@ -1,8 +1,10 @@
 {
-    "output_image_file":       "~/ramdisk/twitter_header_clock.jpg",
-    "font_name":               "NotoSansMono-Regular.ttf",
+    "is_dryrun_mode":           0,
+    "is_cowsay_mode":           0,
+    "output_image_file":        "~/ramdisk/twitter_header_clock.jpg",
+    "font_name":                "NotoSansMono-Regular.ttf",
     "should_draw_sun_and_moon": true,
-    "timezone_type":           "local",
-    "lang":                    "en_US"
+    "timezone_type":            "local",
+    "lang":                     "en_US"
 }
 

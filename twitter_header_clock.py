@@ -21,12 +21,14 @@ import twitter
 
 ### Parameters ###
 
-is_debug_mode: bool = bool(1)
-
 with open('config.json', 'r') as f:
     prm: dict = json.load(f)
 
 twitter_credentials_file: str = './twitter_credentials.json'
+
+is_dryrun_mode: bool = bool(prm['is_dryrun_mode'])
+
+is_cowsay_mode: bool = bool(prm['is_cowsay_mode'])
 
 output_image_file: str = os.path.expanduser(prm['output_image_file'])
 
@@ -39,7 +41,7 @@ timeout_sec: int = 30
 header_size: tuple = (1500, 500) #This is the officially recommended size. ref: |https://help.twitter.com/en/managing-your-account/common-issues-when-uploading-profile-photo|
 
 font_name: str = prm['font_name']
-font_size: int = 35
+font_size: int = round(35 * (1 + 0.6 * (not is_cowsay_mode)))
 
 color_mode: str = 'RGB'
 bg_color: int = (0x3C, 0x3C, 0x3C)
@@ -113,20 +115,26 @@ def get_current_time() -> time.struct_time:
     else:
         return time.gmtime()
 
-def create_date_string() -> str:
+def create_date_string(is_cowsay_mode: bool) -> str:
 
     date_string: str = time.strftime('%Y/%m/%d(%a)%H:%M %Z(%z)', get_current_time())
 
-    cow_command: tuple = ('cowsay', 'cowthink')
-    cow_type: tuple = ('www', 'udder', 'small', 'moose', 'default')
-    cow_expression: tuple = (None, '-b', '-d', '-g', '-p', '-s', '-t', '-w', '-y')
+    if (is_cowsay_mode):
 
-    command: list = [random.choice(cow_command), '-f', random.choice(cow_type)]
-    if (tmp := random.choice(cow_expression)):
-        command.append(tmp)
-    command.append(date_string)
+        cow_command: tuple = ('cowsay', 'cowthink')
+        cow_type: tuple = ('www', 'udder', 'small', 'moose', 'default')
+        cow_expression: tuple = (None, '-b', '-d', '-g', '-p', '-s', '-t', '-w', '-y')
 
-    return subprocess.run(command, capture_output = True).stdout.decode('utf-8')
+        command: list = [random.choice(cow_command), '-f', random.choice(cow_type)]
+        if (tmp := random.choice(cow_expression)):
+            command.append(tmp)
+        command.append(date_string)
+
+        return subprocess.run(command, capture_output = True).stdout.decode('utf-8')
+
+    else:
+
+        return f'\n\n\n\n\nCurrent Time\n{date_string}'
 
 #experimental
 def draw_sun_or_moon(draw_object: ImageDraw.Draw) -> None:
@@ -166,7 +174,7 @@ def draw_sun_or_moon(draw_object: ImageDraw.Draw) -> None:
 
 ### main ###
 
-if (not is_debug_mode):
+if (not is_dryrun_mode):
     twitter_client: Twitter = Twitter(twitter_credentials_file)
 
 font: object = ImageFont.truetype(font_name, size = font_size)
@@ -179,9 +187,9 @@ while (True):
     if (should_draw_sun_and_moon):
         draw_sun_or_moon(draw_object)
 
-    draw_object.text((header_size[0] / 4, 0), text = create_date_string(), fill = fg_color, font = font)
+    draw_object.text((header_size[0] / 4, 0), text = create_date_string(is_cowsay_mode), fill = fg_color, font = font)
 
-    if (is_debug_mode):
+    if (is_dryrun_mode):
         image = image.resize((header_size[0] // 2, header_size[1] // 2))
         image.show()
         break
