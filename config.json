@@ -1,7 +1,9 @@
 {
     "is_dryrun_mode":           0,
     "is_cowsay_mode":           0,
+    "is_after_effects_mode":    1,
     "output_image_file":        "~/ramdisk/twitter_header_clock.jpg",
+    "after_effects_frames":     "./after_effects/frames/",
     "font_name":                "NotoSansMono-Regular.ttf",
     "should_draw_sun_and_moon": true,
     "timezone_type":            "local",

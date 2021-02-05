@@ -30,7 +30,11 @@ is_dryrun_mode: bool = bool(prm['is_dryrun_mode'])
 
 is_cowsay_mode: bool = bool(prm['is_cowsay_mode'])
 
+is_after_effects_mode: bool = bool(prm['is_after_effects_mode'])
+
 output_image_file: str = os.path.expanduser(prm['output_image_file'])
+
+after_effects_frames: str = prm['after_effects_frames']
 
 num_trial: int = 3 #the number of times we try to send a request (since it may fail due to timeout)
 
@@ -181,20 +185,38 @@ font: object = ImageFont.truetype(font_name, size = font_size)
 
 while (True):
 
-    image: Image.Image = Image.new(color_mode, header_size, color = bg_color)
-    draw_object: ImageDraw.Draw = ImageDraw.Draw(image)
+    if (is_after_effects_mode):
 
-    if (should_draw_sun_and_moon):
-        draw_sun_or_moon(draw_object)
+        if (is_dryrun_mode):
+            break
 
-    draw_object.text((header_size[0] / 4, 0), text = create_date_string(is_cowsay_mode), fill = fg_color, font = font)
+        t:    object = time.localtime()
+        hour: int    = t.tm_hour
+        min:  int    = t.tm_min
 
-    if (is_dryrun_mode):
-        image = image.resize((header_size[0] // 2, header_size[1] // 2))
-        image.show()
-        break
+        frame_offset: int = 1
 
-    image.save(output_image_file)
+        if (hour < 9):
+            hour += 24
+
+        output_image_file: str = f'{after_effects_frames}{((hour - 9) * 60 + min + frame_offset):04d}.png'
+
+    else:
+
+        image: Image.Image = Image.new(color_mode, header_size, color = bg_color)
+        draw_object: ImageDraw.Draw = ImageDraw.Draw(image)
+
+        if (should_draw_sun_and_moon):
+            draw_sun_or_moon(draw_object)
+
+        draw_object.text((header_size[0] / 4, 0), text = create_date_string(is_cowsay_mode), fill = fg_color, font = font)
+
+        if (is_dryrun_mode):
+            image = image.resize((header_size[0] // 2, header_size[1] // 2))
+            image.show()
+            break
+
+        image.save(output_image_file)
 
     twitter_client.change_header_image_(output_image_file)
 
