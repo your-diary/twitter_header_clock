@@ -181,7 +181,8 @@ def draw_sun_or_moon(draw_object: ImageDraw.Draw) -> None:
 if (not is_dryrun_mode):
     twitter_client: Twitter = Twitter(twitter_credentials_file)
 
-font: object = ImageFont.truetype(font_name, size = font_size)
+if (not is_after_effects_mode):
+    font: object = ImageFont.truetype(font_name, size = font_size)
 
 while (True):
 
