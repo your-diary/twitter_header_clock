@@ -24,12 +24,6 @@ Each created image has the size shown below. Thus it is estimated that the appli
 
 ## Requirements
 
-- [`python-twitter` library](https://github.com/bear/python-twitter)
-
-- [`Pillow` library](https://pillow.readthedocs.io/en/stable/)
-
-- [`cowsay` command](https://en.wikipedia.org/wiki/Cowsay)
-
 - An account for [Twitter Developer](https://developer.twitter.com/en) (see [Preparations](#preparations))
 
 ## Preparations
@@ -61,5 +55,11 @@ Each created image has the size shown below. Thus it is estimated that the appli
 $ python3 ./twitter_header_clock.py
 ```
 
-<!-- vim: set spell: -->
+or
 
+```bash
+$ docker compose build
+$ docker compose up -d
+```
+
+<!-- vim: set spell: -->
