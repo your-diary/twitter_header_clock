@@ -3,7 +3,7 @@ services:
         build: .
         image: twitter_header_clock
         container_name: twitter_header_clock
-        command: ["sh", "-c", "./twitter_header_clock.py | tee -a log.txt"]
+        command: ["sh", "-c", "python3 -u ./twitter_header_clock.py | tee -a log.txt"]
         volumes:
             - .:/app
         restart: always
