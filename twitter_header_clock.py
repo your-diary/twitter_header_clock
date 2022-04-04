@@ -36,13 +36,16 @@ output_image_file: str = os.path.expanduser(prm['output_image_file'])
 
 after_effects_frames: str = prm['after_effects_frames']
 
-num_trial: int = 3 #the number of times we try to send a request (since it may fail due to timeout)
+# the number of times we try to send a request (since it may fail due to timeout)
+num_trial: int = 3
 
 interval_sec: int = 60
 
 timeout_sec: int = 30
 
-header_size: tuple = (1500, 500) #This is the officially recommended size. ref: |https://help.twitter.com/en/managing-your-account/common-issues-when-uploading-profile-photo|
+# This is the officially recommended size.
+# ref: |https://help.twitter.com/en/managing-your-account/common-issues-when-uploading-profile-photo|
+header_size: tuple = (1500, 500)
 
 font_name: str = prm['font_name']
 font_size: int = round(35 * (1 + 0.6 * (not is_cowsay_mode)))
@@ -56,19 +59,21 @@ sun_radius: int = 40
 sun_color: int = (0xEF, 0x8E, 0x38)
 moon_color: int = (0xFE, 0xFA, 0xD4)
 
-timezone_type: str = prm['timezone_type'] #'utc' or 'local'
+timezone_type: str = prm['timezone_type']  # 'utc' or 'local'
 
-lang: str = prm['lang'] #'en_US', 'ja_JP', ...
+lang: str = prm['lang']  # 'en_US', 'ja_JP', ...
 locale.setlocale(locale.LC_TIME, lang + '.UTF-8')
 
 #-------------------------------------#
 
 ### Signal Handlers ###
 
+
 def signal_handler(signal, frame) -> None:
     print()
     print(f'(twitter_header_clock.py) Signal {signal} was caught.')
     sys.exit(1)
+
 
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGINT, signal_handler)
@@ -76,6 +81,7 @@ signal.signal(signal.SIGINT, signal_handler)
 #-------------------------------------#
 
 ### Classes ###
+
 
 class Twitter:
 
@@ -87,12 +93,12 @@ class Twitter:
             twitter_credentials: dict = json.load(f_in)
 
         self.twitter_client: object = twitter.Api(
-                                                   consumer_key        = twitter_credentials['api_key'],
-                                                   consumer_secret     = twitter_credentials['api_secret_key'],
-                                                   access_token_key    = twitter_credentials['access_token'],
-                                                   access_token_secret = twitter_credentials['access_token_secret'],
-                                                   timeout             = timeout_sec
-                                                 )
+            consumer_key=twitter_credentials['api_key'],
+            consumer_secret=twitter_credentials['api_secret_key'],
+            access_token_key=twitter_credentials['access_token'],
+            access_token_secret=twitter_credentials['access_token_secret'],
+            timeout=timeout_sec
+        )
 
         print('Twitter: Logged in.')
 
@@ -113,43 +119,52 @@ class Twitter:
 
 ### Functions ###
 
+
 def get_current_time() -> time.struct_time:
     if (timezone_type == 'local'):
         return time.localtime()
     else:
         return time.gmtime()
 
+
 def create_date_string(is_cowsay_mode: bool) -> str:
 
-    date_string: str = time.strftime('%Y/%m/%d(%a)%H:%M %Z(%z)', get_current_time())
+    date_string: str = time.strftime(
+        '%Y/%m/%d(%a)%H:%M %Z(%z)',
+        get_current_time()
+    )
 
     if (is_cowsay_mode):
 
         cow_command: tuple = ('cowsay', 'cowthink')
         cow_type: tuple = ('www', 'udder', 'small', 'moose', 'default')
-        cow_expression: tuple = (None, '-b', '-d', '-g', '-p', '-s', '-t', '-w', '-y')
+        cow_expression: tuple = (
+            None, '-b', '-d', '-g', '-p', '-s', '-t', '-w', '-y'
+        )
 
-        command: list = [random.choice(cow_command), '-f', random.choice(cow_type)]
+        command: list = [
+            random.choice(cow_command), '-f', random.choice(cow_type)
+        ]
         if (tmp := random.choice(cow_expression)):
             command.append(tmp)
         command.append(date_string)
 
-        return subprocess.run(command, capture_output = True).stdout.decode('utf-8')
+        return subprocess.run(command, capture_output=True).stdout.decode('utf-8')
 
     else:
 
         return f'\n\n\n\nCurrent Time\n{date_string}'
 
-#experimental
-def draw_sun_or_moon(draw_object: ImageDraw.Draw) -> None:
 
-    #The orbit of the Sun and the Moon is on this circle.
-    #This circle is generally larger then the size of the header image and its center is below the header image.
+def draw_sun_or_moon(draw_object: ImageDraw.Draw) -> None:  # experimental
+
+    # The orbit of the Sun and the Moon is on this circle.
+    # This circle is generally larger then the size of the header image and its center is below the header image.
     x: float = header_size[0] / 2
     y: float = header_size[1] * 2
     r: float = y * 1.015
 
-    #the angles of sunrise and sunset
+    # the angles of sunrise and sunset
     max_radian: float = 2.46
     min_radian: float = 0.69
     delta_radian: float = (max_radian - min_radian) / (12 * 60)
@@ -159,30 +174,51 @@ def draw_sun_or_moon(draw_object: ImageDraw.Draw) -> None:
 
     current_time: object = get_current_time()
 
-    if (night_end_hour <= current_time.tm_hour < night_start_hour): #sun
-        theta: float = max_radian - ((current_time.tm_hour - night_end_hour) * 60 + current_time.tm_min) * delta_radian
-        X: int = int(x + r * math.cos(theta)) #`X` and `Y` define the bounding box of the Sun or the Moon.
-        Y: int = int(y - r * math.sin(theta))
-        draw_object.ellipse([(X - sun_radius, Y - sun_radius), (X + sun_radius, Y + sun_radius)], fill = sun_color)
-    else: #moon
-        color: int = moon_color
-        if (current_time.tm_hour < night_end_hour):
-            theta: float = max_radian - ((current_time.tm_hour + night_end_hour) * 60 + current_time.tm_min) * delta_radian
-        else:
-            theta: float = max_radian - ((current_time.tm_hour - night_start_hour) * 60 + current_time.tm_min) * delta_radian
+    if (night_end_hour <= current_time.tm_hour < night_start_hour):  # sun
+        theta: float = max_radian - (
+            (current_time.tm_hour - night_end_hour) * 60 + current_time.tm_min
+        ) * delta_radian
+        # `X` and `Y` define the bounding box of the Sun or the Moon.
         X: int = int(x + r * math.cos(theta))
         Y: int = int(y - r * math.sin(theta))
-        draw_object.chord([(X - sun_radius, Y - sun_radius), (X + sun_radius, Y + sun_radius)], start = -45, end = 135, fill = moon_color)
+        draw_object.ellipse(
+            [(X - sun_radius, Y - sun_radius),
+             (X + sun_radius, Y + sun_radius)],
+            fill=sun_color
+        )
+    else:  # moon
+        color: int = moon_color
+        if (current_time.tm_hour < night_end_hour):
+            theta: float = max_radian - (
+                (current_time.tm_hour + night_end_hour) * 60 + current_time.tm_min
+            ) * delta_radian
+        else:
+            theta: float = max_radian - (
+                (current_time.tm_hour - night_start_hour) * 60
+                + current_time.tm_min
+            ) * delta_radian
+        X: int = int(x + r * math.cos(theta))
+        Y: int = int(y - r * math.sin(theta))
+        draw_object.chord(
+            [
+                (X - sun_radius, Y - sun_radius),
+                (X + sun_radius, Y + sun_radius)
+            ],
+            start=-45,
+            end=135,
+            fill=moon_color
+        )
 
 #-------------------------------------#
 
 ### main ###
 
+
 if (not is_dryrun_mode):
     twitter_client: Twitter = Twitter(twitter_credentials_file)
 
 if (not is_after_effects_mode):
-    font: object = ImageFont.truetype(font_name, size = font_size)
+    font: object = ImageFont.truetype(font_name, size=font_size)
 
 while (True):
 
@@ -192,8 +228,8 @@ while (True):
             break
 
         t:    object = time.localtime()
-        hour: int    = t.tm_hour
-        min:  int    = t.tm_min
+        hour: int = t.tm_hour
+        min:  int = t.tm_min
 
         frame_offset: int = 1
 
@@ -204,13 +240,18 @@ while (True):
 
     else:
 
-        image: Image.Image = Image.new(color_mode, header_size, color = bg_color)
+        image: Image.Image = Image.new(color_mode, header_size, color=bg_color)
         draw_object: ImageDraw.Draw = ImageDraw.Draw(image)
 
         if (should_draw_sun_and_moon):
             draw_sun_or_moon(draw_object)
 
-        draw_object.text((header_size[0] / 4, 0), text = create_date_string(is_cowsay_mode), fill = fg_color, font = font)
+        draw_object.text(
+            (header_size[0] / 4, 0),
+            text=create_date_string(is_cowsay_mode),
+            fill=fg_color,
+            font=font
+        )
 
         if (is_dryrun_mode):
             image = image.resize((header_size[0] // 2, header_size[1] // 2))
@@ -221,10 +262,9 @@ while (True):
 
     twitter_client.change_header_image_(output_image_file)
 
-    if (interval_sec == 60): #If `interval_sec` is exactly 60 seconds, waits with a higher accuracy. For example, if you start the program at 12:43:18, the next update will be 12:44:00 instead of 12:44:18.
+    if (interval_sec == 60):  # If `interval_sec` is exactly 60 seconds, waits with a higher accuracy. For example, if you start the program at 12:43:18, the next update will be 12:44:00 instead of 12:44:18.
         time.sleep(interval_sec - get_current_time().tm_sec + 1)
     else:
         time.sleep(interval_sec)
 
 #-------------------------------------#
-
