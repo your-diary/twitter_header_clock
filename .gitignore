@@ -11,5 +11,6 @@ batch_twitter_header_clock.sh
 log.txt
 
 *.avi
+*.mov
 frames/
 

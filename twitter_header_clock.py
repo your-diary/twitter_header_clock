@@ -104,16 +104,19 @@ class Twitter:
 
     def change_header_image_(self, image_path: str) -> None:
         print('-----')
+        success: bool = False
         for i in range(num_trial):
             try:
                 if (i != 0):
                     print()
                 print(f'[{i}/{num_trial}] Uploading the header image...')
                 self.twitter_client.UpdateBanner(image_path)
-                print('Done.')
+                success = True
                 break
-            except:
+            except Exception as e:
+                print(e)
                 pass
+        print('Done.' if (success) else 'Failed.')
 
 #-------------------------------------#
 
